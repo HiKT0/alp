@@ -1,0 +1,26 @@
+{
+  "name": "alp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx tsc & node ./dist/index.js",
+    "electron": "npx tsc & electron ./dist",
+    "compile": "npx tsc",
+    "relectron": "electron ./dist"
+  },
+  "author": "HiKTO",
+  "license": "ISC",
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.67",
+    "electron-rebuild": "^3.2.9"
+  },
+  "dependencies": {
+    "@types/sqlite3": "^3.1.8",
+    "electron": "^21.1.1",
+    "node-gyp": "^9.3.0",
+    "sqlite3": "^5.1.2",
+    "typescript": "^4.8.4"
+  }
+}

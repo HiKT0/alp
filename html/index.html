@@ -1,0 +1,31 @@
+<!DOCTYPE html><html>
+  <head>
+    <meta charset='UTF-8'>
+    <title>ALP</title>
+    <link href="../static/css/main.css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="search-query-panel">
+      <fieldset class="query-input-wrapper">
+        <legend>Фильтры</legend>
+        <label>Фильтр по нику:</label>
+        <input type="text" id="filter-nick" placeholder="HiKTO">
+
+        <label>Фильтр по телу:</label>
+        <input type="text" id="filter-body" placeholder="/home">
+      </fieldset>
+      <fieldset id="query-type-wrapper" class="query-type-wrapper">
+        <legend>Типы логов</legend>
+      </fieldset>
+      <fieldset class="controls">
+        <legend>Управление</legend>
+        <button onclick="start_searching()" id="search">Поиск</button>
+      </fieldset>
+      
+    </div>
+    <div id="output">
+      
+    </div>
+    <script src="../dist/renderer.js"></script>
+  </body>
+</html>
