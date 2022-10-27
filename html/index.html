@@ -14,6 +14,13 @@
         <label>Фильтр по телу:</label>
         <input type="text" id="filter-body" placeholder="/home">
       </fieldset>
+      <fieldset class="query-input-wrapper">
+        <legend>Интервал дат</legend>
+        <label>От:</label>
+        <input type="date" id="time-interval-start">
+        <label>До:</label>
+        <input type="date" id="time-interval-end">
+      </fieldset>
       <fieldset id="query-type-wrapper" class="query-type-wrapper">
         <legend>Типы логов</legend>
       </fieldset>
@@ -21,7 +28,10 @@
         <legend>Управление</legend>
         <button onclick="start_searching()" id="search">Поиск</button>
       </fieldset>
-      
+      <div>
+        Статус:
+        <span id="status-bar"></span>
+      </div>
     </div>
     <div id="output">
       

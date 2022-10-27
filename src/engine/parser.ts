@@ -43,6 +43,7 @@ export interface Log {
 
 export class LogParser {
     classificate_command(command: string): number {
+        command = command.toLowerCase();
         if (command == "rg"
             || command == "region")
             return LogType.Region;
@@ -74,7 +75,7 @@ export class LogParser {
             || command == "msg"
             || command == "mai")
             return LogType.Private;
-        if (command == ""
+        if (command == "l"
             || command == "helpop")
             return LogType.Mod;
         if (command == "warn"

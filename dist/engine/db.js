@@ -15,11 +15,13 @@ class DBConfig {
         });
         this.config[key] = value;
     }
-    load_from_db() {
+    load_from_db(on_finish) {
         this.db.all("SELECT * FROM config", (err, rows) => {
             for (let row of rows) {
                 this.config[row.key] = row.value;
             }
+            console.log("");
+            on_finish();
         });
     }
     constructor(db) {
@@ -29,6 +31,8 @@ class DBConfig {
 class ALPDatabase {
     db;
     config;
+    ready = false;
+    on_finish = () => { };
     close() {
         this.db.close();
     }
@@ -36,12 +40,11 @@ class ALPDatabase {
         const default_config = [
             { key: "last_upd", value: "0" }
         ];
-        const missing_values = [];
         for (let entry of default_config) {
             this.db.get("SELECT value FROM config WHERE key=?", [entry.key], (err, row) => {
                 if (row === undefined) {
-                    missing_values.push({ key: entry.key, value: entry.value });
                     this.db.run("INSERT INTO config (key, value) VALUES (?, ?)", [entry.key, entry.value]);
+                    this.config.set(entry.key, entry.value);
                 }
             });
         }
@@ -62,14 +65,24 @@ class ALPDatabase {
                 )
             `);
             this.db.run(`
-            CREATE TABLE IF NOT EXISTS config (
+                CREATE TABLE IF NOT EXISTS config (
                     key text,
                     value text
                 )
             `);
+            this.repair_config_integrity();
+            this.config.load_from_db(() => {
+                this.on_ready();
+                this.ready = true;
+            });
         });
-        this.repair_config_integrity();
-        this.config.load_from_db();
+    }
+    on_ready = () => { };
+    exec_when_ready(on_ready) {
+        if (this.ready)
+            on_ready();
+        else
+            this.on_ready = on_ready;
     }
     add_log(log) {
         this.db.run(`
@@ -91,24 +104,26 @@ class ALPDatabase {
     commit() {
         this.db.run('commit');
     }
-    search(nick, body, types, callback) {
-        nick = '%' + nick + '%';
-        body = '%' + body + '%';
+    search(request) {
+        request.nick = '%' + request.nick + '%';
+        request.body = '%' + request.body + '%';
+        request.time_interval.start /= 1000;
+        request.time_interval.end = request.time_interval.end / 1000 + 86400;
         let query = `
-            SELECT src FROM logs WHERE actor LIKE ? AND body LIKE ?
+            SELECT type, src FROM logs WHERE actor LIKE ? AND body LIKE ? AND timestamp > ? AND timestamp < ?
         `;
-        if (types.length > 0) {
+        if (request.types.length > 0) {
             query += 'AND type in (';
-            for (let type of types) {
+            for (let type of request.types) {
                 query += String(type) + ',';
             }
             query = query.substring(0, query.length - 1) + ') ';
         }
         query += 'ORDER BY timestamp';
-        this.db.all(query, [nick, body], (err, rows) => {
+        this.db.all(query, [request.nick, request.body, request.time_interval.start, request.time_interval.end], (err, rows) => {
             if (err)
                 console.error(query, ": \n", err);
-            callback(rows);
+            request.callback(rows);
         });
     }
 }

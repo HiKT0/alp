@@ -3,6 +3,21 @@ const log_output = document.getElementById('output');
 const query_types_container = document.getElementById('query-type-wrapper');
 const nick_input = document.getElementById('filter-nick');
 const body_input = document.getElementById('filter-body');
+const date_start = document.getElementById('time-interval-start');
+const date_end = document.getElementById('time-interval-end');
+const search_button = document.getElementById('search');
+const status_bar = document.getElementById('status-bar');
+function to_yyyy_mm_dd(date) {
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate() + 1;
+    return year + '-'
+        + (month < 10 ? "0" : "") + month + '-'
+        + (day < 10 ? "0" : "") + day;
+}
+const today = new Date();
+date_start.valueAsDate = today;
+date_end.valueAsDate = today;
 const query_types = {};
 function switch_log_type(id) {
     if (query_types[id] === undefined)
@@ -11,6 +26,8 @@ function switch_log_type(id) {
         delete query_types[id];
 }
 function start_searching() {
+    set_status('Запрос логов');
+    search_button.disabled = true;
     log_output.innerHTML = "";
     const requested_types = [];
     for (let type in query_types) {
@@ -18,7 +35,7 @@ function start_searching() {
     }
     const nick = nick_input.value;
     const body = body_input.value;
-    window.ALPEngine.request_logs(nick, body, requested_types);
+    window.ALPEngine.request_logs(nick, body, requested_types, { start: date_start.valueAsNumber, end: date_end.valueAsNumber });
 }
 function add_log_type_selector_group(name, text, types) {
     const affected_types = [];
@@ -92,8 +109,10 @@ function add_log_type_selector_group(name, text, types) {
 function add_log(log) {
     log_output?.insertAdjacentHTML('beforeend', '<span>' + log + '</span>');
 }
+function set_status(status) {
+    status_bar.innerHTML = status;
+}
 window.ALPEngine.set_listener('add_log', ((logs) => {
-    console.log(logs);
     if (logs.length > 0) {
         for (let log of logs) {
             add_log(log.src);
@@ -102,7 +121,16 @@ window.ALPEngine.set_listener('add_log', ((logs) => {
     else {
         add_log('Нет результатов');
     }
+    search_button.disabled = false;
+    set_status('Готов');
 }));
+window.ALPEngine.set_listener('update_success', () => {
+    set_status('Готов');
+    search_button.disabled = false;
+});
+window.ALPEngine.set_listener('set_status', (status) => {
+    set_status(status);
+});
 add_log_type_selector_group('all-server', 'Технические', [
     { type: 12, name: 'activity-money', text: 'Сервер вкл' },
     { type: 13, name: 'activity-trade', text: 'Сервер выкл' },
@@ -133,9 +161,10 @@ add_log_type_selector_group('all-message', 'Сообщения', [
     { type: 64, name: 'message-mod', text: 'Мод.чат' },
 ]);
 add_log_type_selector_group('all-punishment', 'Наказания', [
-    { type: 61, name: 'punishment-warn', text: 'Варн' },
-    { type: 62, name: 'punishment-kick', text: 'Кик' },
-    { type: 63, name: 'punishment-mute', text: 'Мут' },
-    { type: 64, name: 'punishment-ban', text: 'Бан' },
+    { type: 71, name: 'punishment-warn', text: 'Варн' },
+    { type: 72, name: 'punishment-kick', text: 'Кик' },
+    { type: 73, name: 'punishment-mute', text: 'Мут' },
+    { type: 74, name: 'punishment-ban', text: 'Бан' },
 ]);
+search_button.disabled = true;
 window.ALPEngine.update_all();

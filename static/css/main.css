@@ -151,6 +151,10 @@ button:hover {
     background-color: var(--primary-light);
 }
 
+button:disabled:hover {
+    background-color: var(--primary-middle);
+}
+
 .collapse-button {
     max-width: fit-content;
     
