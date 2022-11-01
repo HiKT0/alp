@@ -1,6 +1,6 @@
 {
   "name": "alp",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Advanced Log Parser",
   "main": "dist/index.js",
   "scripts": {
@@ -8,9 +8,9 @@
     "start": "npx tsc & electron-forge start",
     "electron": "npx tsc & electron ./dist",
     "compile": "npx tsc",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "package": "npx tsc & electron-forge package",
+    "make": "npx tsc & electron-forge make",
+    "publish": "npx tsc & electron-forge publish"
   },
   "author": "HiKTO",
   "license": "ISC",

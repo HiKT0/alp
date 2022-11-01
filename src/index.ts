@@ -39,9 +39,10 @@ const createWindow = () => {
         mainWindow.webContents.send('log-devtools', message);
     }
 
-    if (app.isPackaged) {
-        scheduleAutoUpdate(engine);
-    }
+    if (app.isPackaged)
+        scheduleAutoUpdate(engine)
+    else
+        engine.set_update_status("Обновления не поддерживаются в режиме разработки")
 
     engine.db.exec_when_ready(() => mainWindow.loadFile(__dirname + '/../html/index.html'))
 }

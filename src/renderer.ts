@@ -50,8 +50,7 @@ function start_searching() {
 
 function add_log_type_selector_group(name: string, text: string, 
     types: {type: number, name: string, text: string}[]) {
-    
-    const affected_types: number[] = [] 
+
     const group = document.createElement('div', {class: 'log-type-group'} as ElementCreationOptions);
     group.insertAdjacentHTML('beforeend', `
         <label>${text}</label>
@@ -108,7 +107,6 @@ function add_log_type_selector_group(name: string, text: string,
         options_checkboxes.push({element: type_option_checkbox, type: log_type.type});
         type_option.insertAdjacentElement('afterbegin', type_option_checkbox);
         options_list.insertAdjacentElement('beforeend', type_option);
-        affected_types.push(log_type.type);
     }
     group_checkbox.onchange = () => {
         if (group_checkbox.checked)

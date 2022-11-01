@@ -5,38 +5,43 @@
     <link href="../static/css/main.css" rel="stylesheet">
   </head>
   <body>
-    <div id="search-query-panel">
-      <fieldset class="query-input-wrapper">
-        <legend>Фильтры</legend>
-        <label>Фильтр по нику:</label>
-        <input type="text" id="filter-nick" placeholder="HiKTO">
+    <header>
+      <div id="search-query-panel">
+        <fieldset class="query-input-wrapper">
+          <legend>Фильтры</legend>
+          <label>Фильтр по нику:</label>
+          <input type="text" id="filter-nick" placeholder="HiKTO">
 
-        <label>Фильтр по телу:</label>
-        <input type="text" id="filter-body" placeholder="/home">
-      </fieldset>
-      <fieldset class="query-input-wrapper">
-        <legend>Интервал дат</legend>
-        <label>От:</label>
-        <input type="date" id="time-interval-start">
-        <label>До:</label>
-        <input type="date" id="time-interval-end">
-      </fieldset>
-      <fieldset id="query-type-wrapper" class="query-type-wrapper">
-        <legend>Типы логов</legend>
-      </fieldset>
-      <fieldset class="controls">
-        <legend>Управление</legend>
-        <button onclick="start_searching()" id="search">Поиск</button>
-      </fieldset>
-      <div style="width: 100%">
-        Статус:
-        <span id="status-bar"></span>
-        <span style="float: right" id="update-bar"></span>
+          <label>Фильтр по телу:</label>
+          <input type="text" id="filter-body" placeholder="home">
+        </fieldset>
+        <fieldset class="query-input-wrapper">
+          <legend>Интервал дат</legend>
+          <label>От:</label>
+          <input type="date" id="time-interval-start">
+          <label>До:</label>
+          <input type="date" id="time-interval-end">
+        </fieldset>
+        <fieldset id="query-type-wrapper" class="query-type-wrapper">
+          <legend>Типы логов</legend>
+        </fieldset>
+        <fieldset class="controls">
+          <legend>Управление</legend>
+          <button onclick="start_searching()" id="search">Поиск</button>
+        </fieldset>
       </div>
-    </div>
-    <div id="output">
-      
-    </div>
+    </header>
+    <main>
+      <div id="output">
+
+      </div>
+    </main>
+    <footer>
+      <div class="status-bar-container">
+        <span class="status-bar-element" id="status-bar"></span>
+        <span class="status-bar-element"  style="float: right" id="update-bar">Индикатор обновлений</span>
+      </div>
+    </footer>
     <script src="../dist/renderer.js"></script>
   </body>
 </html>

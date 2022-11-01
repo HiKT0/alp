@@ -36,9 +36,10 @@ const createWindow = () => {
     log_devtools = (message) => {
         mainWindow.webContents.send('log-devtools', message);
     };
-    if (electron_1.app.isPackaged) {
+    if (electron_1.app.isPackaged)
         scheduleAutoUpdate(engine);
-    }
+    else
+        engine.set_update_status("Обновления не поддерживаются в режиме разработки");
     engine.db.exec_when_ready(() => mainWindow.loadFile(__dirname + '/../html/index.html'));
 };
 function scheduleAutoUpdate(engine) {
