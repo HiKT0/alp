@@ -8,6 +8,7 @@ const date_end: HTMLInputElement = document.getElementById('time-interval-end') 
 
 const search_button: HTMLButtonElement = document.getElementById('search') as HTMLButtonElement;
 const status_bar = document.getElementById('status-bar')
+const update_status_bar = document.getElementById('update-bar')
 
 function to_yyyy_mm_dd(date: Date) {
     let year = date.getFullYear();
@@ -154,6 +155,12 @@ window.ALPEngine.set_listener('update_success', () => {
 window.ALPEngine.set_listener('set_status', (status: string) => {
     set_status(status);
 })
+
+window.ALPEngine.set_listener('set_update_status', (status: string) => {
+    update_status_bar!.innerHTML = status;
+})
+
+window.ALPEngine.set_listener('log-devtools', (message: string) => console.log(message))
 
 
 add_log_type_selector_group('all-server', 'Технические', [

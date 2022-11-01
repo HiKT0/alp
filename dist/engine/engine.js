@@ -12,12 +12,16 @@ class ALPEngine {
     authWindow;
     set_status;
     pass_captcha;
+    set_update_status;
     constructor(working_window) {
         this.mainWindow = working_window;
         this.db = new db_1.ALPDatabase;
         this.parser = new parser_1.LogParser;
         this.set_status = (status) => {
             this.mainWindow.webContents.send('set-status', status);
+        };
+        this.set_update_status = (status) => {
+            this.mainWindow.webContents.send('set-update-status', status);
         };
         this.pass_captcha = (url, on_success) => {
             if (!this.authWindow) {

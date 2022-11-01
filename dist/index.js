@@ -4,6 +4,7 @@ const engine_1 = require("./engine/engine");
 const electron_1 = require("electron");
 if (require('electron-squirrel-startup'))
     electron_1.app.quit();
+let log_devtools = console.log;
 const createWindow = () => {
     const mainWindow = new electron_1.BrowserWindow({
         width: 1152,
@@ -32,26 +33,32 @@ const createWindow = () => {
         };
         engine.search(request);
     });
+    log_devtools = (message) => {
+        mainWindow.webContents.send('log-devtools', message);
+    };
+    if (electron_1.app.isPackaged) {
+        scheduleAutoUpdate(engine);
+    }
     engine.db.exec_when_ready(() => mainWindow.loadFile(__dirname + '/../html/index.html'));
 };
-function scheduleAutoUpdate() {
-    electron_1.autoUpdater.setFeedURL({ url: "https://github.com/HiKT0/alp/releases" });
+function scheduleAutoUpdate(engine) {
+    electron_1.autoUpdater.setFeedURL({ url: "https://github.com/HiKT0/alp/releases/latest/download" });
     electron_1.autoUpdater.on('checking-for-update', () => {
-        console.log('checking for updates');
+        engine.set_update_status("Проверка обновлений");
     });
     electron_1.autoUpdater.on('update-not-available', () => {
-        console.log('update-not-available');
+        engine.set_update_status("Обновления не найдены");
     });
     electron_1.autoUpdater.on('update-available', () => {
-        console.log('update-available');
+        engine.set_update_status("Загрузка обновлений");
+    });
+    electron_1.autoUpdater.on('update-downloaded', () => {
+        engine.set_update_status("Перезапустите приложение для установки обновлений");
     });
     electron_1.autoUpdater.checkForUpdates();
 }
 electron_1.app.whenReady().then(() => {
     createWindow();
-    if (electron_1.app.isPackaged) {
-        scheduleAutoUpdate();
-    }
 });
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin')

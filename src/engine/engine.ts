@@ -11,12 +11,16 @@ export class ALPEngine {
     authWindow: Electron.BrowserWindow | undefined;
     set_status: (status: string) => void;
     pass_captcha: (url: string, on_redirect: () => void) => void
+    set_update_status: (status: string) => void;
     constructor(working_window: Electron.BrowserWindow) {
         this.mainWindow = working_window;
         this.db = new ALPDatabase;
         this.parser = new LogParser;
         this.set_status = (status: string) => {
             this.mainWindow.webContents.send('set-status', status);
+        }
+        this.set_update_status = (status: string) => {
+            this.mainWindow.webContents.send('set-update-status', status);
         }
         this.pass_captcha = (url: string, on_success:  () => void) => {
             if (!this.authWindow) {

@@ -7,6 +7,7 @@ const date_start = document.getElementById('time-interval-start');
 const date_end = document.getElementById('time-interval-end');
 const search_button = document.getElementById('search');
 const status_bar = document.getElementById('status-bar');
+const update_status_bar = document.getElementById('update-bar');
 function to_yyyy_mm_dd(date) {
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
@@ -131,6 +132,10 @@ window.ALPEngine.set_listener('update_success', () => {
 window.ALPEngine.set_listener('set_status', (status) => {
     set_status(status);
 });
+window.ALPEngine.set_listener('set_update_status', (status) => {
+    update_status_bar.innerHTML = status;
+});
+window.ALPEngine.set_listener('log-devtools', (message) => console.log(message));
 add_log_type_selector_group('all-server', 'Технические', [
     { type: 12, name: 'activity-money', text: 'Сервер вкл' },
     { type: 13, name: 'activity-trade', text: 'Сервер выкл' },

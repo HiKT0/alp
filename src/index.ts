@@ -1,10 +1,10 @@
 import { ALPEngine } from './engine/engine'
 import { app, BrowserWindow, ipcMain, autoUpdater } from 'electron'
 import { formatDate, LogRequest } from './engine/utils';
-import * as fs from "fs";
-import * as path from "path";
 
 if (require('electron-squirrel-startup')) app.quit();
+
+let log_devtools = console.log;
 
 const createWindow = () => {
     
@@ -33,33 +33,41 @@ const createWindow = () => {
         request.callback = (logs: string[]) => {
             mainWindow.webContents.send('result-log', logs);
         }
-
         engine.search(request);
     })
+    log_devtools = (message: string) => {
+        mainWindow.webContents.send('log-devtools', message);
+    }
+
+    if (app.isPackaged) {
+        scheduleAutoUpdate(engine);
+    }
+
     engine.db.exec_when_ready(() => mainWindow.loadFile(__dirname + '/../html/index.html'))
 }
 
-function scheduleAutoUpdate() {
-    autoUpdater.setFeedURL({url: "https://github.com/HiKT0/alp/releases"})
+function scheduleAutoUpdate(engine: ALPEngine) {
+    autoUpdater.setFeedURL({url: "https://github.com/HiKT0/alp/releases/latest/download"})
     autoUpdater.on('checking-for-update', () => {
-        console.log('checking for updates')
+        engine.set_update_status("Проверка обновлений")
     })
 
     autoUpdater.on('update-not-available', () => {
-        console.log('update-not-available')
+        engine.set_update_status("Обновления не найдены")
     })
 
     autoUpdater.on('update-available', () => {
-        console.log('update-available')
+        engine.set_update_status("Загрузка обновлений")
+    })
+
+    autoUpdater.on('update-downloaded', () => {
+        engine.set_update_status("Перезапустите приложение для установки обновлений")
     })
     autoUpdater.checkForUpdates()
 }
 
 app.whenReady().then(() => {
     createWindow();
-    if (app.isPackaged) {
-        scheduleAutoUpdate();
-    }
 })
 
 

@@ -5,7 +5,9 @@ const electron_1 = require("electron");
 const ipc_listeners = {
     add_log: (logs) => console.log(logs),
     update_success: () => console.log("Update successful"),
-    set_status: (status) => console.log("Установлен статус:", status)
+    set_status: (status) => console.log("Установлен статус:", status),
+    log_devtools: (message) => console.log(message),
+    set_update_status: (status) => console.log(status)
 };
 function set_listener(channel_name, callback) {
     ipc_listeners[channel_name] = callback;
@@ -22,4 +24,6 @@ exports.API = {
 electron_1.ipcRenderer.on('result-log', (event, log) => ipc_listeners.add_log(log));
 electron_1.ipcRenderer.on('update-success', () => ipc_listeners.update_success());
 electron_1.ipcRenderer.on('set-status', (event, status) => ipc_listeners.set_status(status));
+electron_1.ipcRenderer.on('set-update-status', (event, status) => ipc_listeners.set_update_status(status));
+electron_1.ipcRenderer.on('log-devtools', (event, message) => ipc_listeners.log_devtools(message));
 electron_1.contextBridge.exposeInMainWorld("ALPEngine", exports.API);
