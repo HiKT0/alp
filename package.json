@@ -1,16 +1,16 @@
 {
   "name": "alp",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Advanced Log Parser",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron-forge start",
+    "start": "npx tsc & electron-forge start",
     "electron": "npx tsc & electron ./dist",
     "compile": "npx tsc",
-    "relectron": "electron ./dist",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
   },
   "author": "HiKTO",
   "license": "ISC",
@@ -24,6 +24,7 @@
     "electron-rebuild": "^3.2.9"
   },
   "dependencies": {
+    "@electron-forge/publisher-github": "^6.0.0-beta.70",
     "@types/sqlite3": "^3.1.8",
     "electron-squirrel-startup": "^1.0.0",
     "git": "^0.1.5",
@@ -36,7 +37,7 @@
       "packagerConfig": {
         "icon": "icon.ico",
         "executableName": "ALP",
-        "asar": true
+        "asar": false
       },
       "makers": [
         {

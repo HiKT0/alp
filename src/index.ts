@@ -1,7 +1,8 @@
 import { ALPEngine } from './engine/engine'
 import { app, BrowserWindow, ipcMain, autoUpdater } from 'electron'
 import { formatDate, LogRequest } from './engine/utils';
-import FeedURLOptions = Electron.FeedURLOptions;
+import * as fs from "fs";
+import * as path from "path";
 
 if (require('electron-squirrel-startup')) app.quit();
 
@@ -38,15 +39,29 @@ const createWindow = () => {
     engine.db.exec_when_ready(() => mainWindow.loadFile(__dirname + '/../html/index.html'))
 }
 
+function scheduleAutoUpdate() {
+    autoUpdater.setFeedURL({url: "https://github.com/HiKT0/alp/releases"})
+    autoUpdater.on('checking-for-update', () => {
+        console.log('checking for updates')
+    })
+
+    autoUpdater.on('update-not-available', () => {
+        console.log('update-not-available')
+    })
+
+    autoUpdater.on('update-available', () => {
+        console.log('update-available')
+    })
+    autoUpdater.checkForUpdates()
+}
+
 app.whenReady().then(() => {
-    createWindow()
+    createWindow();
+    if (app.isPackaged) {
+        scheduleAutoUpdate();
+    }
 })
 
-autoUpdater.setFeedURL({
-    provider: 'github',
-    owner: 'HiKT0',
-    repo: 'alp'
-} as unknown as FeedURLOptions)
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()

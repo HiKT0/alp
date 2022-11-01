@@ -19,7 +19,7 @@ class ALPEngine {
         this.set_status = (status) => {
             this.mainWindow.webContents.send('set-status', status);
         };
-        this.pass_captcha = (url, on_redirect) => {
+        this.pass_captcha = (url, on_success) => {
             if (!this.authWindow) {
                 this.authWindow = new electron_1.BrowserWindow({
                     width: 800,
@@ -33,14 +33,29 @@ class ALPEngine {
             }
             this.authWindow.loadURL(url);
             this.authWindow.show();
-            this.authWindow.webContents.on('did-navigate-in-page', (event, url) => {
-                console.log(url);
-                on_redirect();
+            this.authWindow.webContents.on('did-navigate-in-page', (event, redirect_url) => {
+                console.log(redirect_url);
+                on_success();
                 this.authWindow?.hide();
             });
         };
     }
-    update_date(date, callback) {
+    parse_day(date, logs, callback) {
+        const lines = logs.split("\n");
+        this.db.db.serialize(() => {
+            this.db.clear_date(date);
+            this.db.begin_transaction();
+            for (let line of lines) {
+                if (line.trim() !== "")
+                    this.db.add_log(this.parser.parse_log(line));
+            }
+            this.db.commit();
+            this.set_status("Обновлен: " + date);
+            callback();
+            return true;
+        });
+    }
+    update_date(date, callback, can_retry = true) {
         this.set_status("Обновление лога: " + date);
         const req = electron_1.net.request({
             url: "https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/" + date + ".log",
@@ -52,24 +67,23 @@ class ALPEngine {
                 log += chunk;
             });
             resp.on('end', () => {
-                const lines = log.split("\n");
-                this.db.db.serialize(() => {
-                    this.db.clear_date(date);
-                    this.db.begin_transaction();
-                    for (let line of lines) {
-                        if (line.trim() !== "")
-                            this.db.add_log(this.parser.parse_log(line));
+                if (log[0] != '[') {
+                    this.set_status('Удаленный сервер вернул неверный результат при получении лога: ' + date);
+                    if (can_retry) {
+                        this.pass_captcha("https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/" + date + ".log", () => {
+                            this.update_date(date, callback, false);
+                        });
                     }
-                    this.db.commit();
-                    this.set_status("Обновлен: " + date);
-                    callback();
-                });
+                    return false;
+                }
+                else {
+                    this.parse_day(date, log, callback);
+                }
             });
         });
         req.end();
     }
-    get_all_dates(callback, retries) {
-        this.pass_captcha("https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/", () => { });
+    get_all_dates(callback, can_retry = true) {
         const req = electron_1.net.request({
             url: "https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/",
             useSessionCookies: true
@@ -81,7 +95,6 @@ class ALPEngine {
             });
             resp.on('end', () => {
                 let dates = [];
-                let pos = 0;
                 let date_start = data.indexOf('.log">');
                 while (date_start !== -1) {
                     let date_end = data.indexOf('.log<', date_start + 6);
@@ -89,10 +102,10 @@ class ALPEngine {
                     date_start = data.indexOf('.log">', date_end);
                 }
                 if (dates.length == 0) {
-                    if (retries < 1) {
+                    if (can_retry) {
                         this.set_status("Не удалось запросить список доступных логов. Попытка пройти проверку Cloudflare");
                         this.pass_captcha("https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/", () => {
-                            this.get_all_dates(callback, retries + 1);
+                            this.get_all_dates(callback, false);
                         });
                     }
                 }
@@ -120,7 +133,7 @@ class ALPEngine {
                 checking_date.setUTCSeconds(checking_date.getUTCSeconds() + 86400);
             }
             callback(not_updated);
-        }, 0);
+        });
     }
     update(callback) {
         this.set_status("Запуск обновления логов");

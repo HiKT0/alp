@@ -34,8 +34,24 @@ const createWindow = () => {
     });
     engine.db.exec_when_ready(() => mainWindow.loadFile(__dirname + '/../html/index.html'));
 };
+function scheduleAutoUpdate() {
+    electron_1.autoUpdater.setFeedURL({ url: "https://github.com/HiKT0/alp/releases" });
+    electron_1.autoUpdater.on('checking-for-update', () => {
+        console.log('checking for updates');
+    });
+    electron_1.autoUpdater.on('update-not-available', () => {
+        console.log('update-not-available');
+    });
+    electron_1.autoUpdater.on('update-available', () => {
+        console.log('update-available');
+    });
+    electron_1.autoUpdater.checkForUpdates();
+}
 electron_1.app.whenReady().then(() => {
     createWindow();
+    if (electron_1.app.isPackaged) {
+        scheduleAutoUpdate();
+    }
 });
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin')
