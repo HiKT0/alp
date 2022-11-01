@@ -5,6 +5,8 @@ const db_1 = require("./db");
 const parser_1 = require("./parser");
 const electron_1 = require("electron");
 const utils_1 = require("./utils");
+const node_buffer_1 = require("node:buffer");
+const fs = require('fs');
 class ALPEngine {
     db;
     parser;
@@ -23,7 +25,12 @@ class ALPEngine {
         this.set_update_status = (status) => {
             this.mainWindow.webContents.send('set-update-status', status);
         };
-        this.pass_captcha = (url, on_success) => {
+        this.mainWindow.on('closed', () => {
+            if (this.authWindow) {
+                this.authWindow.close();
+            }
+        });
+        this.pass_captcha = (on_success) => {
             if (!this.authWindow) {
                 this.authWindow = new electron_1.BrowserWindow({
                     width: 800,
@@ -35,12 +42,17 @@ class ALPEngine {
                     }
                 });
             }
-            this.authWindow.loadURL(url);
+            this.authWindow.loadURL("https://logs10.mcskill.net");
             this.authWindow.show();
             this.authWindow.webContents.on('did-navigate-in-page', (event, redirect_url) => {
                 console.log(redirect_url);
-                on_success();
-                this.authWindow?.hide();
+                this.authWindow.webContents.findInPage("Index of");
+                this.authWindow.webContents.on('found-in-page', (event, result) => {
+                    if (result.matches > 0) {
+                        on_success();
+                        this.authWindow?.hide();
+                    }
+                });
             });
         };
     }
@@ -65,24 +77,31 @@ class ALPEngine {
             url: "https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/" + date + ".log",
             useSessionCookies: true
         });
-        let log = "";
         req.on('response', (resp) => {
-            resp.on('data', (chunk) => {
-                log += chunk;
-            });
+            let buf_writing_pos = 0;
+            let log;
+            if (resp.headers['content-length'])
+                log = node_buffer_1.Buffer.alloc(Number(resp.headers['content-length']));
+            else {
+                log = node_buffer_1.Buffer.alloc(4194304);
+            }
             resp.on('end', () => {
-                if (log[0] != '[') {
+                if (String.fromCharCode(log[0]) != '[') {
                     this.set_status('Удаленный сервер вернул неверный результат при получении лога: ' + date);
                     if (can_retry) {
-                        this.pass_captcha("https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/" + date + ".log", () => {
+                        this.pass_captcha(() => {
                             this.update_date(date, callback, false);
                         });
                     }
                     return false;
                 }
                 else {
-                    this.parse_day(date, log, callback);
+                    this.parse_day(date, log.subarray(0, log.indexOf('\0')).toString(), callback);
                 }
+            });
+            resp.on('data', (chunk) => {
+                chunk.copy(log, buf_writing_pos);
+                buf_writing_pos += chunk.length;
             });
         });
         req.end();
@@ -94,9 +113,6 @@ class ALPEngine {
         });
         let data = "";
         req.on('response', (resp) => {
-            resp.on('data', (chunk) => {
-                data += chunk;
-            });
             resp.on('end', () => {
                 let dates = [];
                 let date_start = data.indexOf('.log">');
@@ -108,13 +124,16 @@ class ALPEngine {
                 if (dates.length == 0) {
                     if (can_retry) {
                         this.set_status("Не удалось запросить список доступных логов. Попытка пройти проверку Cloudflare");
-                        this.pass_captcha("https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/", () => {
+                        this.pass_captcha(() => {
                             this.get_all_dates(callback, false);
                         });
                     }
                 }
                 else
                     callback(dates);
+            });
+            resp.on('data', (chunk) => {
+                data += chunk.toString();
             });
         });
         req.end();

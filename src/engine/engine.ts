@@ -2,7 +2,9 @@ import { ALPDatabase } from "./db";
 import { LogParser } from "./parser";
 import { BrowserWindow, net} from 'electron'
 import { formatDate, LogRequest, parseDateString } from "./utils";
-import WebContents = Electron.WebContents;
+import { Buffer } from 'node:buffer';
+
+const fs = require('fs');
 
 export class ALPEngine {
     db: ALPDatabase;
@@ -10,7 +12,7 @@ export class ALPEngine {
     mainWindow: Electron.BrowserWindow;
     authWindow: Electron.BrowserWindow | undefined;
     set_status: (status: string) => void;
-    pass_captcha: (url: string, on_redirect: () => void) => void
+    pass_captcha: (on_redirect: () => void) => void
     set_update_status: (status: string) => void;
     constructor(working_window: Electron.BrowserWindow) {
         this.mainWindow = working_window;
@@ -22,7 +24,12 @@ export class ALPEngine {
         this.set_update_status = (status: string) => {
             this.mainWindow.webContents.send('set-update-status', status);
         }
-        this.pass_captcha = (url: string, on_success:  () => void) => {
+        this.mainWindow.on('closed', () => {
+            if (this.authWindow) {
+                this.authWindow.close()
+            }
+        })
+        this.pass_captcha = (on_success:  () => void) => {
             if (!this.authWindow) {
                 this.authWindow = new BrowserWindow({
                     width: 800,
@@ -34,12 +41,17 @@ export class ALPEngine {
                     }
                 })
             }
-            this.authWindow.loadURL(url)
+            this.authWindow.loadURL("https://logs10.mcskill.net")
             this.authWindow.show()
             this.authWindow.webContents.on('did-navigate-in-page', (event, redirect_url) => {
                 console.log(redirect_url)
-                on_success()
-                this.authWindow?.hide();
+                this.authWindow!.webContents.findInPage("Index of")
+                this.authWindow!.webContents.on('found-in-page', (event, result) => {
+                    if (result.matches > 0) {
+                        on_success()
+                        this.authWindow?.hide();
+                    }
+                })
             })
         }
     }
@@ -63,17 +75,20 @@ export class ALPEngine {
             url: "https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/" + date + ".log",
             useSessionCookies: true
         });
-        let log = ""
         req.on('response', (resp: Electron.IncomingMessage) => {
-            resp.on('data', (chunk) => {
-                log += chunk;
-            })
+            let buf_writing_pos = 0;
+
+            let log: Buffer;
+            if (resp.headers['content-length'])
+                log = Buffer.alloc(Number(resp.headers['content-length']));
+            else {
+                log = Buffer.alloc(4194304);
+            }
             resp.on('end', () => {
-                if (log[0] != '[') {
+                if (String.fromCharCode(log[0]) != '[') {
                     this.set_status('Удаленный сервер вернул неверный результат при получении лога: ' + date)
                     if (can_retry) {
                         this.pass_captcha(
-                            "https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/" + date + ".log",
                             () => {
                                 this.update_date(date, callback, false)
                             }
@@ -82,8 +97,13 @@ export class ALPEngine {
                     return false;
                 }
                 else {
-                    this.parse_day(date, log, callback)
+                    this.parse_day(date, log.subarray(0, log.indexOf('\0')).toString(), callback)
                 }
+            })
+
+            resp.on('data', (chunk) => {
+                chunk.copy(log, buf_writing_pos);
+                buf_writing_pos += chunk.length;
             })
         })
         req.end();
@@ -95,9 +115,6 @@ export class ALPEngine {
         });
         let data = "";
         req.on('response', (resp: Electron.IncomingMessage) => {
-            resp.on('data', (chunk) => {
-                data += chunk;
-            })
             resp.on('end', () => {
                 let dates: string[] = [];
                 let date_start = data.indexOf('.log">');
@@ -110,7 +127,6 @@ export class ALPEngine {
                     if (can_retry) {
                         this.set_status("Не удалось запросить список доступных логов. Попытка пройти проверку Cloudflare")
                         this.pass_captcha(
-                            "https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/",
                             () => {
                                 this.get_all_dates(callback, false)
                             }
@@ -118,6 +134,9 @@ export class ALPEngine {
                     }
                 }
                 else callback(dates);
+            })
+            resp.on('data', (chunk) => {
+                data += chunk.toString();
             })
         })
         req.end();
