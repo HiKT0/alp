@@ -1,6 +1,7 @@
 import { Database } from "sqlite3";
 import { Log } from "./parser"
 import { LogRequest } from "./utils";
+import * as path from "path";
 
 interface DBConfigEntry {
     key: string,
@@ -54,8 +55,8 @@ export class ALPDatabase {
             })
         }
     }
-    constructor() {
-        this.db = new Database("logs.db");
+    constructor(appdata_folder: string) {
+        this.db = new Database(path.join(appdata_folder, "ALP", "logs.db"));
         this.config = new DBConfig(this.db);
         this.db.serialize(() => {
             this.db.run(`

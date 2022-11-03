@@ -11,9 +11,10 @@ const createWindow = () => {
         height: 864,
         webPreferences: {
             preload: __dirname + "/preload.js"
-        }
+        },
+        autoHideMenuBar: true
     });
-    const engine = new engine_1.ALPEngine(mainWindow);
+    const engine = new engine_1.ALPEngine(mainWindow, electron_1.app.getPath('appData'));
     electron_1.ipcMain.on('parse-date', (event, date) => {
         engine.update_date(date, () => console.log(date, " updated successfully"));
     });

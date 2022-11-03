@@ -1,4 +1,3 @@
-const log_output = document.getElementById('output');
 const query_types_container = document.getElementById('query-type-wrapper');
 const nick_input: HTMLInputElement = document.getElementById('filter-nick') as HTMLInputElement
 const body_input: HTMLInputElement = document.getElementById('filter-body') as HTMLInputElement
@@ -9,15 +8,7 @@ const date_end: HTMLInputElement = document.getElementById('time-interval-end') 
 const search_button: HTMLButtonElement = document.getElementById('search') as HTMLButtonElement;
 const status_bar = document.getElementById('status-bar')
 const update_status_bar = document.getElementById('update-bar')
-
-function to_yyyy_mm_dd(date: Date) {
-    let year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate() + 1;
-    return year + '-'
-        +  (month < 10 ? "0" : "") + month + '-'
-        +   (day < 10 ? "0" : "") + day
-}
+const download_progress = document.getElementById('download-progress')
 
 const today = new Date()
 date_start.valueAsDate = today;
@@ -32,10 +23,39 @@ function switch_log_type(id: number) {
         delete query_types[id]
 }
 
+class LogOutput {
+    log_output = document.getElementById('output')!;
+    log_highlights = [
+        'log-default',
+        'log-teleportation',
+        'log-activity',
+        'log-kill',
+        'log-session',
+        'log-message',
+        'log-punish',
+    ];
+    tree = document.createElement('div');
+    add_log = (record: {src: string, type: number}) => {
+        const span = document.createElement('span');
+        span.className = this.log_highlights[Math.floor(record.type / 10) - 1];
+        span.innerText = record.src;
+        this.tree.insertAdjacentElement('beforeend', span)
+    };
+    commit = () => {
+        this.log_output.insertAdjacentElement('beforeend', this.tree)
+    };
+    clear = () => {
+        this.tree.innerHTML = '';
+        this.log_output.innerHTML = '';
+    }
+}
+
+const log_output = new LogOutput();
+
 function start_searching() {
     set_status('Запрос логов')
     search_button.disabled = true;
-    log_output!.innerHTML = "";
+    log_output.clear();
     const requested_types: number[] = [];
     for (let type in query_types) {
         requested_types.push(Number(type));
@@ -61,6 +81,7 @@ function add_log_type_selector_group(name: string, text: string,
     group.insertAdjacentElement('afterbegin', group_checkbox);
     const options_list = document.createElement('ul');
     options_list.className = 'query-type-options-container'
+
     const options_checkboxes: {element: HTMLInputElement, type: number}[] = [];
 
     let expanded: boolean = false;
@@ -124,23 +145,20 @@ function add_log_type_selector_group(name: string, text: string,
     query_types_container?.insertAdjacentElement('beforeend', group);
 }
 
-function add_log(log: string) {
-    log_output?.insertAdjacentHTML('beforeend', '<span>' + log + '</span>')
-}
-
 function set_status(status: string) {
     status_bar!.innerHTML = status;
 }
 
-window.ALPEngine.set_listener('add_log', ((logs: {src: string}[]) => {
+window.ALPEngine.set_listener('add_log', ((logs: {src: string, type: number}[]) => {
     if (logs.length > 0) {
         for (let log of logs) {
-            add_log(log.src);
+            log_output.add_log(log);
         }
     }
     else {
-        add_log('Нет результатов')
+        log_output.add_log({src: 'Нет результатов', type: 0})
     }
+    log_output.commit()
     search_button.disabled = false;
     set_status('Готов')
 }))

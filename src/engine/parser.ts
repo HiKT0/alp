@@ -29,7 +29,7 @@ export enum LogType {
 	Kick = 72,
 	Mute = 73,
 	Ban = 74,
-};
+}
 
 export interface Log {
     actor: string;

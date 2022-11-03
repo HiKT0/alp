@@ -34,7 +34,6 @@ var LogType;
     LogType[LogType["Mute"] = 73] = "Mute";
     LogType[LogType["Ban"] = 74] = "Ban";
 })(LogType = exports.LogType || (exports.LogType = {}));
-;
 class LogParser {
     classificate_command(command) {
         command = command.toLowerCase();

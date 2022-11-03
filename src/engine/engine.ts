@@ -14,9 +14,9 @@ export class ALPEngine {
     set_status: (status: string) => void;
     pass_captcha: (on_redirect: () => void) => void
     set_update_status: (status: string) => void;
-    constructor(working_window: Electron.BrowserWindow) {
+    constructor(working_window: Electron.BrowserWindow, appdata_folder: string) {
         this.mainWindow = working_window;
-        this.db = new ALPDatabase;
+        this.db = new ALPDatabase(appdata_folder);
         this.parser = new LogParser;
         this.set_status = (status: string) => {
             this.mainWindow.webContents.send('set-status', status);

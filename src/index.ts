@@ -13,9 +13,10 @@ const createWindow = () => {
         height: 864,
         webPreferences: {
             preload: __dirname + "/preload.js"
-        }
+        },
+        autoHideMenuBar: true
     })
-    const engine = new ALPEngine(mainWindow);
+    const engine = new ALPEngine(mainWindow, app.getPath('appData'));
     ipcMain.on('parse-date', (event, date: string) => {
         engine.update_date(date, () => console.log(date, " updated successfully"))
     })
@@ -38,7 +39,6 @@ const createWindow = () => {
     log_devtools = (message: string) => {
         mainWindow.webContents.send('log-devtools', message);
     }
-
     if (app.isPackaged)
         scheduleAutoUpdate(engine)
     else

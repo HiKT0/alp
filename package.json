@@ -1,6 +1,6 @@
 {
   "name": "alp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Advanced Log Parser",
   "main": "dist/index.js",
   "scripts": {
@@ -37,7 +37,7 @@
       "packagerConfig": {
         "icon": "icon.ico",
         "executableName": "ALP",
-        "asar": true
+        "asar": false
       },
       "makers": [
         {

@@ -7,7 +7,9 @@ const ipc_listeners = {
     update_success: () => console.log("Update successful"),
     set_status: (status) => console.log("Установлен статус:", status),
     log_devtools: (message) => console.log(message),
-    set_update_status: (status) => console.log(status)
+    set_update_status: (status) => console.log(status),
+    show_download_progress: () => console.log("Download progress shown"),
+    hide_download_progress: () => console.log("Download progress hidden")
 };
 function set_listener(channel_name, callback) {
     ipc_listeners[channel_name] = callback;
@@ -26,4 +28,7 @@ electron_1.ipcRenderer.on('update-success', () => ipc_listeners.update_success()
 electron_1.ipcRenderer.on('set-status', (event, status) => ipc_listeners.set_status(status));
 electron_1.ipcRenderer.on('set-update-status', (event, status) => ipc_listeners.set_update_status(status));
 electron_1.ipcRenderer.on('log-devtools', (event, message) => ipc_listeners.log_devtools(message));
+electron_1.ipcRenderer.on('show-download-progress', (event, message) => ipc_listeners.show_download_progress(message));
+electron_1.ipcRenderer.on('hide-download-progress', (event, message) => ipc_listeners.hide_download_progress(message));
+electron_1.ipcRenderer.on('download-progress', (event, message) => ipc_listeners.download_progress(message));
 electron_1.contextBridge.exposeInMainWorld("ALPEngine", exports.API);

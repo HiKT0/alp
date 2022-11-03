@@ -9,17 +9,17 @@
       <div id="search-query-panel">
         <fieldset class="query-input-wrapper">
           <legend>Фильтры</legend>
-          <label>Фильтр по нику:</label>
+          <label for="filter-nick">Фильтр по нику:</label>
           <input type="text" id="filter-nick" placeholder="HiKTO">
-
-          <label>Фильтр по телу:</label>
+          <label for="filter-body">Фильтр по телу:</label>
           <input type="text" id="filter-body" placeholder="home">
+
         </fieldset>
         <fieldset class="query-input-wrapper">
           <legend>Интервал дат</legend>
-          <label>От:</label>
+          <label for="time-interval-start">От:</label>
           <input type="date" id="time-interval-start">
-          <label>До:</label>
+          <label for="time-interval-end">До:</label>
           <input type="date" id="time-interval-end">
         </fieldset>
         <fieldset id="query-type-wrapper" class="query-type-wrapper">
@@ -31,10 +31,8 @@
         </fieldset>
       </div>
     </header>
-    <main>
-      <div id="output">
+    <main id="output">
 
-      </div>
     </main>
     <footer>
       <div class="status-bar-container">

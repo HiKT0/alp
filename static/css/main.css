@@ -40,11 +40,11 @@
 
 @font-face {
     font-family: JetBrains Mono;
-    src: url("./fonts/webfonts/JetBrainsMono-Regular.woff2") format("woff2"),
-        url("./fonts/ttf/JetBrainsMono-Regular.ttf") format("ttf");
+    src: url("../../fonts/webfonts/JetBrainsMono-Regular.woff2") format("woff2"),
+        url("../../fonts/ttf/JetBrainsMono-Regular.ttf") format("ttf");
     font-style: normal;
     font-weight: normal;
-    font-display: swap;
+    font-size: 10px;
 }
 
 *:focus {
@@ -75,7 +75,7 @@ body {
     padding-top: 0.25em;
     display: grid;
     overflow: hidden;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 2fr auto;
     white-space: nowrap;
 }
 
@@ -94,6 +94,8 @@ input {
     height: fit-content;
     border-radius: 5px;
     border: none;
+    font-size: 12px;
+    font-family: JetBrains Mono, sans-serif;
 }
 
 label {
@@ -109,7 +111,7 @@ header {
 main {
     min-height: max-content;
     flex: 1;
-    font-family: JetBrains Mono, "Calibri", sans-serif;
+    font-family: JetBrains Mono, sans-serif;
 }
 
 footer {
@@ -132,8 +134,16 @@ footer {
 .query-input-wrapper {
     display: grid;
     grid-template-columns: auto auto;
-    grid-template-rows: 1fr 1fr;
+    grid-auto-rows: min-content;
     max-width: fit-content;
+}
+
+.query-type-options-container {
+    z-index: 1;
+    position: absolute;
+    background-color: var(--primary-light);
+    padding: 0.8em;
+    border-radius: 0px 0px 1em 1em;
 }
 
 .query-type-wrapper {
@@ -164,7 +174,6 @@ fieldset legend {
 }
 
 #output {
-    font-size: 16px;
     overflow: auto;
 }
 
@@ -227,4 +236,29 @@ button:disabled:hover {
 .controls button {
     width: 100%;
     height: 2em;
+}
+
+
+.log-teleportation {
+    color: #4EC9B0;
+}
+
+.log-activity {
+    color: #fff;
+}
+
+.log-kill {
+    color: #ee5153
+}
+
+.log-session {
+    color: #6897BB
+}
+
+.log-message {
+    color: #f8b464
+}
+
+.log-punish {
+    color: #d683ba
 }

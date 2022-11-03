@@ -15,9 +15,9 @@ class ALPEngine {
     set_status;
     pass_captcha;
     set_update_status;
-    constructor(working_window) {
+    constructor(working_window, appdata_folder) {
         this.mainWindow = working_window;
-        this.db = new db_1.ALPDatabase;
+        this.db = new db_1.ALPDatabase(appdata_folder);
         this.parser = new parser_1.LogParser;
         this.set_status = (status) => {
             this.mainWindow.webContents.send('set-status', status);

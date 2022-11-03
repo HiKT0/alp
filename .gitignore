@@ -2,3 +2,4 @@ node_modules
 .vscode
 logs.db
 out/
+logs.db-journal
