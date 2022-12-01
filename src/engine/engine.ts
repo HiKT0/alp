@@ -4,6 +4,8 @@ import { BrowserWindow, net} from 'electron'
 import { formatDate, LogRequest, parseDateString } from "./utils";
 import { Buffer } from 'node:buffer';
 
+import { SERVER_URL } from "../config";
+
 const fs = require('fs');
 
 export class ALPEngine {
@@ -41,7 +43,7 @@ export class ALPEngine {
                     }
                 })
             }
-            this.authWindow.loadURL("https://logs10.mcskill.net")
+            this.authWindow.loadURL(SERVER_URL)
             this.authWindow.show()
             this.authWindow.webContents.on('did-navigate-in-page', (event, redirect_url) => {
                 console.log(redirect_url)
@@ -72,7 +74,7 @@ export class ALPEngine {
     update_date(date: string, callback: () => void, can_retry = true) {
         this.set_status("Обновление лога: " + date)
         const req = net.request({
-            url: "https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/" + date + ".log",
+            url: SERVER_URL + "/Galaxycraft_logger_public_logs/Logs/" + date + ".log",
             useSessionCookies: true
         });
         req.on('response', (resp: Electron.IncomingMessage) => {
@@ -110,7 +112,7 @@ export class ALPEngine {
     }
     get_all_dates(callback: (dates: string[]) => void, can_retry = true) {
         const req = net.request({
-            url: "https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/",
+            url: SERVER_URL + "/Galaxycraft_logger_public_logs/Logs/",
             useSessionCookies: true
         });
         let data = "";

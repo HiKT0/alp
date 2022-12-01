@@ -6,6 +6,7 @@ const parser_1 = require("./parser");
 const electron_1 = require("electron");
 const utils_1 = require("./utils");
 const node_buffer_1 = require("node:buffer");
+const config_1 = require("../config");
 const fs = require('fs');
 class ALPEngine {
     db;
@@ -42,7 +43,7 @@ class ALPEngine {
                     }
                 });
             }
-            this.authWindow.loadURL("https://logs10.mcskill.net");
+            this.authWindow.loadURL(config_1.SERVER_URL);
             this.authWindow.show();
             this.authWindow.webContents.on('did-navigate-in-page', (event, redirect_url) => {
                 console.log(redirect_url);
@@ -74,7 +75,7 @@ class ALPEngine {
     update_date(date, callback, can_retry = true) {
         this.set_status("Обновление лога: " + date);
         const req = electron_1.net.request({
-            url: "https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/" + date + ".log",
+            url: config_1.SERVER_URL + "/Galaxycraft_logger_public_logs/Logs/" + date + ".log",
             useSessionCookies: true
         });
         req.on('response', (resp) => {
@@ -108,7 +109,7 @@ class ALPEngine {
     }
     get_all_dates(callback, can_retry = true) {
         const req = electron_1.net.request({
-            url: "https://logs10.mcskill.net/Galaxycraft_logger_public_logs/Logs/",
+            url: config_1.SERVER_URL + "/Galaxycraft_logger_public_logs/Logs/",
             useSessionCookies: true
         });
         let data = "";
