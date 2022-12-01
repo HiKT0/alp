@@ -21,7 +21,8 @@ export const API = {
     },
     parse_date: (date: string) => ipcRenderer.send('parse-date', date),
     ipc_listeners,
-    set_listener
+    set_listener,
+    switch_page: (page: string) => ipcRenderer.send('switch-page', page)
 }
 
 ipcRenderer.on('result-log', (event, log) => ipc_listeners.add_log(log))

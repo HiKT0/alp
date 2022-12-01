@@ -175,9 +175,9 @@ export class ALPEngine {
                         if (updated === total) {
                             callback()
                             this.db.config.set('last_upd', formatDate(new Date()))
-                        };
+                        }
                     });
-                };
+                }
             });
         });
     };

@@ -129,12 +129,17 @@ class ALPDatabase {
         this.db.run('commit');
     }
     search(request) {
-        request.nick = '%' + request.nick + '%';
+        let nicks = request.nick.split(",");
         request.body = '%' + request.body + '%';
         request.time_interval.start /= 1000;
         request.time_interval.end = request.time_interval.end / 1000 + 86400;
-        let query = `
-            SELECT type, src FROM logs WHERE actor LIKE ? AND body LIKE ? AND timestamp > ? AND timestamp < ?
+        let query = "SELECT type, src FROM logs WHERE (";
+        for (let nick in nicks) {
+            nicks[nick] = "%" + nicks[nick].trim() + "%";
+            query += " actor LIKE ? OR ";
+        }
+        query = query.substring(0, query.length - 3);
+        query += `) AND body LIKE ? AND timestamp > ? AND timestamp < ?
         `;
         if (request.types.length > 0) {
             query += 'AND type in (';
@@ -144,7 +149,7 @@ class ALPDatabase {
             query = query.substring(0, query.length - 1) + ') ';
         }
         query += 'ORDER BY timestamp';
-        this.db.all(query, [request.nick, request.body, request.time_interval.start, request.time_interval.end], (err, rows) => {
+        this.db.all(query, [...nicks, request.body, request.time_interval.start, request.time_interval.end], (err, rows) => {
             if (err)
                 console.error(query, ": \n", err);
             request.callback(rows);

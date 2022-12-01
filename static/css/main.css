@@ -262,3 +262,31 @@ button:disabled:hover {
 .log-punish {
     color: #d683ba
 }
+
+#tab-selector {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    align-items: center;
+    background-color: black;
+    justify-items: center;
+}
+
+.tab {
+    width: 95%;
+    height: 2em;
+    border-radius: 10px 10px 0 0;
+}
+
+.tab-active {
+    background-color: var(--primary-middle);
+}
+
+.tab-active:hover {
+    background-color: var(--primary-middle);
+}
+
+.tab-inactive {
+    background-color: var(--primary-deep);
+}

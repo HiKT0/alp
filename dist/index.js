@@ -15,6 +15,7 @@ const createWindow = () => {
         autoHideMenuBar: true
     });
     const engine = new engine_1.ALPEngine(mainWindow, electron_1.app.getPath('appData'));
+    let logs_updated = false;
     electron_1.ipcMain.on('parse-date', (event, date) => {
         engine.update_date(date, () => console.log(date, " updated successfully"));
     });
@@ -34,6 +35,12 @@ const createWindow = () => {
         };
         engine.search(request);
     });
+    electron_1.ipcMain.on('set-logs-updated', (event, value) => {
+        logs_updated = value;
+    });
+    electron_1.ipcMain.on('switch-page', (event, page) => {
+        return mainWindow.loadFile(__dirname + '/../html/' + page);
+    });
     log_devtools = (message) => {
         mainWindow.webContents.send('log-devtools', message);
     };
@@ -41,7 +48,13 @@ const createWindow = () => {
         scheduleAutoUpdate(engine);
     else
         engine.set_update_status("Обновления не поддерживаются в режиме разработки");
-    engine.db.exec_when_ready(() => mainWindow.loadFile(__dirname + '/../html/index.html'));
+    engine.db.exec_when_ready(() => {
+        mainWindow.loadFile(__dirname + '/../html/index.html').then(() => {
+            engine.update(() => {
+                mainWindow.webContents.send('update-success');
+            });
+        });
+    });
 };
 function scheduleAutoUpdate(engine) {
     electron_1.autoUpdater.setFeedURL({ url: "https://github.com/HiKT0/alp/releases/latest/download" });

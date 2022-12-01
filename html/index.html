@@ -5,6 +5,10 @@
     <link href="../static/css/main.css" rel="stylesheet">
   </head>
   <body>
+    <div id="tab-selector">
+      <button class="tab tab-active">Поиск логов</button>
+      <button class="tab tab-inactive" onclick="window.ALPEngine.switch_page('helios.html')">СМА "Helios"</button>
+    </div>
     <header>
       <div id="search-query-panel">
         <fieldset class="query-input-wrapper">
@@ -40,6 +44,6 @@
         <span class="status-bar-element"  style="float: right" id="update-bar">Индикатор обновлений</span>
       </div>
     </footer>
-    <script src="../dist/renderer.js"></script>
+    <script src="../dist/renderer-search.js"></script>
   </body>
 </html>

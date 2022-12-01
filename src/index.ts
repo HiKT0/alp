@@ -17,6 +17,8 @@ const createWindow = () => {
         autoHideMenuBar: true
     })
     const engine = new ALPEngine(mainWindow, app.getPath('appData'));
+    let logs_updated = false;
+
     ipcMain.on('parse-date', (event, date: string) => {
         engine.update_date(date, () => console.log(date, " updated successfully"))
     })
@@ -36,6 +38,12 @@ const createWindow = () => {
         }
         engine.search(request);
     })
+    ipcMain.on('set-logs-updated', (event, value: boolean) => {
+        logs_updated = value;
+    })
+    ipcMain.on('switch-page', (event, page: string) => {
+        return mainWindow.loadFile(__dirname + '/../html/' + page);
+    })
     log_devtools = (message: string) => {
         mainWindow.webContents.send('log-devtools', message);
     }
@@ -44,7 +52,13 @@ const createWindow = () => {
     else
         engine.set_update_status("Обновления не поддерживаются в режиме разработки")
 
-    engine.db.exec_when_ready(() => mainWindow.loadFile(__dirname + '/../html/index.html'))
+    engine.db.exec_when_ready(() => {
+        mainWindow.loadFile(__dirname + '/../html/index.html').then(() => {
+            engine.update(() => {
+                mainWindow.webContents.send('update-success');
+            });
+        })
+    })
 }
 
 function scheduleAutoUpdate(engine: ALPEngine) {

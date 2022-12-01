@@ -172,10 +172,8 @@ class ALPEngine {
                             callback();
                             this.db.config.set('last_upd', (0, utils_1.formatDate)(new Date()));
                         }
-                        ;
                     });
                 }
-                ;
             });
         });
     }

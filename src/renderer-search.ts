@@ -221,4 +221,3 @@ add_log_type_selector_group('all-punishment', 'Наказания', [
 ])
 
 search_button.disabled = true;
-window.ALPEngine.update_all();

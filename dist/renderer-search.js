@@ -187,4 +187,3 @@ add_log_type_selector_group('all-punishment', 'Наказания', [
     { type: 74, name: 'punishment-ban', text: 'Бан' },
 ]);
 search_button.disabled = true;
-window.ALPEngine.update_all();

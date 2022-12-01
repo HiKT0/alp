@@ -21,7 +21,8 @@ exports.API = {
     },
     parse_date: (date) => electron_1.ipcRenderer.send('parse-date', date),
     ipc_listeners,
-    set_listener
+    set_listener,
+    switch_page: (page) => electron_1.ipcRenderer.send('switch-page', page)
 };
 electron_1.ipcRenderer.on('result-log', (event, log) => ipc_listeners.add_log(log));
 electron_1.ipcRenderer.on('update-success', () => ipc_listeners.update_success());
