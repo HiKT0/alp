@@ -111,17 +111,28 @@ export class ALPDatabase {
     }
     search(request: LogRequest) {
         let nicks: string[] = request.nick.split(",");
-        request.body = '%' + request.body + '%';
+        let bodies = request.body.split(",");
         request.time_interval.start /= 1000;
         request.time_interval.end = request.time_interval.end / 1000 + 86400;
         let query = "SELECT type, src FROM logs WHERE ("
         for (let nick in nicks) {
             nicks[nick] = "%" + nicks[nick].trim() + "%";
-            query += " actor LIKE ? OR "
+            query += "actor LIKE ? OR "
         }
         query = query.substring(0, query.length - 3);
-        query +=`) AND body LIKE ? AND timestamp > ? AND timestamp < ?
-        `
+
+        query +=')'
+        if (bodies.length > 0) {
+            query += " AND ("
+            for (let body in bodies) {
+                bodies[body] = "%" + bodies[body].trim() + "%"
+                query += "body LIKE ? OR "
+            }
+            query = query.substring(0, query.length - 3);
+            query += ")"
+        }
+
+        query += ' AND timestamp > ? AND timestamp < ?'
         if (request.types.length > 0) {
             query += 'AND type in ('
             for (let type of request.types) {
@@ -130,7 +141,7 @@ export class ALPDatabase {
             query = query.substring(0, query.length-1) + ') '
         }
         query += 'ORDER BY timestamp';
-        this.db.all(query, [...nicks, request.body, request.time_interval.start, request.time_interval.end], (err, rows) => {
+        this.db.all(query, [...nicks, ...bodies, request.time_interval.start, request.time_interval.end], (err, rows) => {
             if (err) console.error(query, ": \n", err)
             request.callback(rows);
         })
