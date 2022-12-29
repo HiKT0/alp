@@ -1,3 +1,5 @@
+import { TIME_ZONE} from "../config";
+
 export function parseDateString(datetime: string): Date {
     let [date, time] = datetime.split(" ");
     
@@ -5,7 +7,7 @@ export function parseDateString(datetime: string): Date {
         const date_members: string[] = date.split(".");
         return new Date(
             Number(date_members[2]),
-            Number(date_members[1])-1,
+            Number(date_members[1]) - 1,
             Number(date_members[0])
     
         );
@@ -15,7 +17,7 @@ export function parseDateString(datetime: string): Date {
         const time_members: string[] = time.split(":");
         return new Date(
             Number(date_members[2]),
-            Number(date_members[1])-1,
+            Number(date_members[1]) - 1,
             Number(date_members[0]),
             Number(time_members[0]),
             Number(time_members[1]),

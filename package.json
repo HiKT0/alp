@@ -1,6 +1,6 @@
 {
   "name": "alp",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Advanced Log Parser",
   "main": "dist/index.js",
   "scripts": {
@@ -69,7 +69,7 @@
               "owner": "HiKT0",
               "name": "alp"
             },
-            "prerelease": true
+            "prerelease": false
           }
         }
       ]

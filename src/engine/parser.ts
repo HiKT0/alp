@@ -1,3 +1,5 @@
+import {TIME_ZONE} from "../config";
+
 export enum LogType {
 	/* по умолчанию */
 	Default = 11,
@@ -101,7 +103,7 @@ export class LogParser {
             Number(date_members[2]),
             Number(date_members[1])-1,
             Number(date_members[0]),
-            Number(time_members[0]) + 3,
+            Number(time_members[0]) + TIME_ZONE,
             Number(time_members[1]),
             Number(time_members[2]),
 
