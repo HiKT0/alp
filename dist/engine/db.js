@@ -131,8 +131,11 @@ class ALPDatabase {
     search(request) {
         let nicks = request.nick.split(",");
         let bodies = request.body.split(",");
+        let tzOffset = new Date().getTimezoneOffset() * 60;
         request.time_interval.start /= 1000;
         request.time_interval.end = request.time_interval.end / 1000 + 86400;
+        request.time_interval.start += tzOffset;
+        request.time_interval.end += tzOffset;
         let query = "SELECT type, src FROM logs WHERE (";
         for (let nick in nicks) {
             nicks[nick] = "%" + nicks[nick].trim() + "%";
